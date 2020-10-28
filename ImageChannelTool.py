@@ -345,7 +345,6 @@ class MainApplication(ConfigDumperMixin, tk.Frame):
 
     @error_log
     def img_combine(self):
-        raise
         output_path = self.output_path.get()
         input_path_1 = self.input_path_1.get()
         input_path_2 = self.input_path_2.get()
