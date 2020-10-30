@@ -1,6 +1,6 @@
 # coding:utf-8
 """
-自动将
+自动将 贴图通道进行 融合
 """
 
 from __future__ import unicode_literals, division, print_function
@@ -48,7 +48,7 @@ class ConfigDumperMixin(object):
     loading = False
 
     @staticmethod
-    def auto_load(func):
+    def dumper_auto_load(func):
         def wrapper(self, *args, **kwargs):
             res = func(self, *args, **kwargs)
             self.load_config()
@@ -57,13 +57,13 @@ class ConfigDumperMixin(object):
         return wrapper
 
     @property
-    def _dump_config_path(self):
+    def _dumper_config_path(self):
         base = os.path.splitext(os.path.basename(__file__))[0]
         path = f"{base}_{self.__class__.__name__}.json"
         path = os.path.join(tempfile.gettempdir(), path)
         return path
 
-    def _dump_tkinter_varaible(self):
+    def _dumper_tkinter_varaible(self):
         return [var for var in dir(self) if isinstance(getattr(self, var), tk.Variable)]
 
     @staticmethod
@@ -79,7 +79,7 @@ class ConfigDumperMixin(object):
     @load_deco.__func__
     def load_config(self, *args, **kwargs):
         path = kwargs.get("path", "")
-        path = path if path else self._dump_config_path
+        path = path if path else self._dumper_config_path
         if not os.path.exists(path):
             return
 
@@ -93,8 +93,8 @@ class ConfigDumperMixin(object):
             return
 
         path = kwargs.get("path", "")
-        path = path if path else self._dump_config_path
-        data = {var: getattr(self, var).get() for var in self._dump_tkinter_varaible()}
+        path = path if path else self._dumper_config_path
+        data = {var: getattr(self, var).get() for var in self._dumper_tkinter_varaible()}
         with open(path, "w") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
@@ -223,7 +223,7 @@ class ProgressDialog(tk.Toplevel):
 
 
 class MainApplication(ConfigDumperMixin, tk.Frame):
-    @ConfigDumperMixin.auto_load
+    @ConfigDumperMixin.dumper_auto_load
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
@@ -361,6 +361,7 @@ class MainApplication(ConfigDumperMixin, tk.Frame):
             messagebox.showwarning("警告", "第二种贴图路径不存在")
             return
 
+        # NOTE 匹配图片命名序号
         regx = re.compile(r".*?(\d+)\..*?$")
         input_path_1_dict = {
             regx.search(f).group(1): os.path.join(input_path_1, f)
