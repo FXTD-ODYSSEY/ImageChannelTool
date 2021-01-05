@@ -9,3 +9,4 @@
 > 基于 tkinter 开发界面    
 > PIL 库进行图片处理    
 
+使用 imagemagick 更高效更加简单~
